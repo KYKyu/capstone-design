@@ -17,8 +17,8 @@ var mysql = require('mysql2');
 const { start } = require('repl');
 var connection = mysql.createConnection({
     host     : 'localhost',
-    user     : 'root',
-    password : '1234',
+    user     : 'USER',
+    password : 'PASSWORD',
     database : 'eyetracking',
     dateStrings : 'date'
 });
