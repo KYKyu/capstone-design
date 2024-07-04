@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="/css/history.css">
+</head>
+<body>
+    <h1>History</h1>
+    <div id="graphContainer">
+        <div id="graph" style="width: 600px; height: 400px;"></div>
+    </div>
+    <table id="historyTable">
+        <tr>
+            <th>순번</th>
+            <th>날짜</th>
+            <th>공부한 단어 수</th>
+        </tr>
+    </table>
+
+    <script>
+        const socket = io('http://localhost:3000');
+
+        // Connect to the server
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            socket.emit('getHistoryData', { userId: 'your_user_id' }); // Replace 'your_user_id' with actual user id
+        });
+
+        // Receive history data from the server
+        socket.on('historyData', (data) => {
+            const results = data.results;
+            const user_id = data.user_id;
+            
+            console.log('Received history data:', results);
+            const historyTable = document.getElementById('historyTable');
+            const graphContainer = document.getElementById('graph');
+
+            // Clear previous data
+            historyTable.innerHTML = `
+                <tr>
+                    <th>순번</th>
+                    <th>날짜</th>
+                    <th>공부한 단어 수</th>
+                </tr>
+            `;
+
+            // Extract data for Plotly
+            const xValues = results.map(record => record.studied_date);
+            const yValues = results.map(record => record.word_count);
+
+            // Add new data to the table
+            results.forEach((record, index) => {
+                const row = document.createElement('tr');
+                // const detailsLinkId = `details-${index}`;
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><a href="/details?user=${user_id}&date=${record.studied_date}">${record.studied_date}</a></td>
+                    <td>${record.word_count}</td>
+                `;
+                historyTable.appendChild(row);
+            });
+
+            // Create Plotly trace
+            const trace = {
+                x: xValues,
+                y: yValues,
+                type: 'bar'
+            };
+
+            // Create Plotly data array
+            const dataPlotly = [trace];
+
+            // Create Plotly layout
+            const layout = {
+                title: '최근 일별 기록',
+                xaxis: {
+                    title: '날짜'
+                },
+                yaxis: {
+                    title: '공부한 단어 수'
+                }
+            };
+            // Plot the graph
+            Plotly.newPlot(graphContainer, dataPlotly, layout);
+        });
+    </script>
+</body>
+</html>

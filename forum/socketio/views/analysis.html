@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/analysis.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Reading analysis</h1>
+    <div id="line-chart"></div>
+    <script>
+        const socket = io('http://localhost:3000'); // 웹 소켓 서버 연결
+
+        // socket으로 서버 접속 - "Connected to server" 서버에 전송
+        socket.on('connect', () => { 
+            console.log('Connected to server');
+            socket.emit('analysisDataReq'); // 서버로 데이터 요청
+        });
+
+        socket.on('analysisDataRes', (analysisData) => {
+            const data = analysisData[0];
+            console.log("Received analysisDataRes event from server");
+            console.log("data=", data);
+
+            // 데이터를 x와 y 배열로 분리
+            const xData = data.map(d => d.category);
+            const yData = data.map(d => d.value);
+
+            // 선 그래프 레이아웃 정의
+            const name = analysisData[1] + "님의 읽기 속도"
+            const lineLayout = {
+                title: name,
+                xaxis: { title: "date" },
+                yaxis: { title: "word/h" }
+            };
+
+            // 선 그래프 생성
+            Plotly.newPlot('line-chart', [{ x: xData, y: yData, type: 'scatter', mode: 'lines+markers' }], lineLayout);
+        });
+
+        socket.on('analysisNoDataRes', (username) => {
+            console.log("No data");
+            var lineChart = document.getElementById("line-chart");
+            var text = username + "의 데이터 없음";
+            lineChart.innerHTML = '<div style="text-align: center;"><span style="color: black; font-weight: bold;">' + text + '</span></div>';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f2f2f2; /* 전체 배경색 */
+}
+
+h1 {
+    color: #006400; /* 주요 색상 */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 80%; /* 페이지의 너비 */
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff; /* 표 배경색 */
+}
+
+table,
+th,
+td {
+    border: 1px solid #ddd;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #cce6ff; /* 헤더 배경색 */
+    text-align: center;
+    color: #006400; /* 주요 색상 */
+}
+
+td {
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* 짝수 행 배경색 */
+}
+
+tr:hover {
+    background-color: #ddd; /* 마우스 오버시 배경색 */
+}
+
+a {
+    color: #006400; /* 링크 색상 */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline; /* 마우스 오버시 밑줄 표시 */
+}
+
+#graphContainer {
+    margin-top: 20px;
+}

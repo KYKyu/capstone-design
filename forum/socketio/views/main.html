@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="stylesheet" type="text/css" href="/css/menu.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="menu-header">Reading assistance web service using eye tracking</h2>
+        <div class="menu-container">
+            <div id="calibration" class="menu-box">Calibration</div>
+            <div id="read" class="menu-box">Reading</div>
+            <div id="history" class="menu-box">My History</div>
+            <div id="analysis" class="menu-box">Reading Analysis</div>
+        </div>
+    </div>
+    <script type="module" crossorigin="use-credentials">
+        import EasySeeSo from '../seeso-minjs/easy-seeso.js';
+        import {showGaze} from '../showGaze.js';
+
+        const licenseKey = "dev_wsywcyr137eu293gd65r058763w3dk9wsjxalmpj";
+        const userId = "jkjin112";
+        const redirectUrl = "http://localhost:3000/main"; // calibration 끝난 후 main 페이지로 넘어옴.
+        const calibraitonPoint = 5;
+        
+        // Seeso SDK for Eye Tracking
+        const seeso = new EasySeeSo();
+        
+        function onClickCalibrationBtn() {
+            EasySeeSo.openCalibrationPage(licenseKey, userId, redirectUrl, calibraitonPoint);
+        }
+
+        function parseCalibrationDataInQueryString () {
+            console.log("호출됨");
+            const href = window.location.href
+            const decodedURI = decodeURI(href)
+            const queryString = decodedURI.split('?')[1];
+            if (!queryString) return undefined
+            console.log("json으로 return됨");
+            console.log(queryString);
+            const jsonString = queryString.slice("calibrationData=".length, queryString.length)
+            console.log(jsonString);
+            return jsonString
+        }
+
+        function onGaze(gazeInfo) {
+            showGaze(gazeInfo)
+        }
+
+        function onDebug(FPS, latency_min, latency_max, latency_avg) {
+
+        }
+        
+        $('#calibration').on('click', function() {
+            EasySeeSo.openCalibrationPage(licenseKey, userId, redirectUrl, calibraitonPoint);
+        });
+        
+        // 이 javascript 코드들을 따로 분리하여 read.html 파일에서 calibrationData를 함께 사용할 수 있게 해보기.
+
+        $('#read').on('click', function() {
+            const calibrationData = parseCalibrationDataInQueryString();
+            console.log(calibrationData);
+            // if (calibrationData) {
+            //     const seeSo = new EasySeeSo();
+            //     seeSo.init(licenseKey,
+            //         async () => {
+            //             EasySeeSo.startTracking(onGaze, onDebug)
+            //             EasySeeSo.setCalibrationData(calibrationData)
+            //         },
+            //         () => console.log("callback when init failed.")
+            //     )
+            // }
+            console.log(calibrationData)
+            localStorage.setItem('calibration_data', calibrationData);
+            window.location.href = "http://localhost:3000/read";
+        })
+
+        $('#analysis').on('click', function() {
+            window.location.href = "http://localhost:3000/analysis";
+        })
+
+        $('#history').on('click', function() {
+            window.location.href = "http://localhost:3000/history";
+        })
+    </script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script> 
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word History</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <link rel="stylesheet" href="/css/history.css">
+</head>
+<body>
+    <h1>Word History</h1>
+    <table id="wordHistoryTable">
+        <tr>
+            <th>순번</th>
+            <th>단어</th>
+            <th>뜻</th>
+            <th>품사</th>
+        </tr>
+    </table>
+
+    <script>
+        const socket = io('http://localhost:3000');
+
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                user: params.get('user'),
+                date: params.get('date')
+            };
+        }
+
+        const { user, date } = getQueryParams();
+
+        // 서버에 요청
+        socket.emit('getWordHistory', { userId: user, date: date });
+        // console.log(user, date);
+
+        // 서버로부터 word history 데이터 수신
+        socket.on('wordHistoryResponse', (data) => {
+            console.log('Received word history data:', data);
+
+            const wordHistoryTable = document.getElementById('wordHistoryTable');
+
+            // 테이블에 새로운 데이터 추가
+            data.forEach((record, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${record.word}</td>
+                    <td>${record.meaning}</td>
+                    <td>${record.class}</td>
+                `;
+                wordHistoryTable.appendChild(row);
+            });
+        });
+    </script>
+</body>
+</html>
